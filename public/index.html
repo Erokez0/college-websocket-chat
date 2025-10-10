@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en"     data-theme="synthwave">
+
+<head>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSockets</title>
+</head>
+
+<body>
+    <div class="left__pane">
+            <h1>ws://chat</h1>
+        <aside class="users list"></aside>
+    </div>
+
+    <div class="right__pane">
+        <main class="messages"></main>
+        <form class="join messages__form">
+            <input name="message__input" type="text" placeholder="Type your message" class="input message__input" required/>
+            <button class="btn message__button" type="submit">send</button>
+        </form>
+    </div>
+
+    <script type="module" src="./script.js"></script>
+</body>
+
+</html>
