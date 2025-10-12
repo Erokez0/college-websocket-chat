@@ -2,8 +2,24 @@ const URL = `ws://${window.location.hostname}:3333`;
 
 const socket = new WebSocket(URL);
 
+let inRoom = false;
 let myId;
 let userIds = new Set();
+/**
+ * @param{ { authorId: string, content: string, sentAt: number }[] } messages 
+ */
+function renderMessages(messages) {
+    for (const message of messages) {
+        renderMessage(message);
+    }
+}
+
+const leaveRoomButton = document.querySelector(".leave__room__button");
+leaveRoomButton.onclick = (event) => {
+    event.preventDefault();
+    sendPayload("leaveRoom", myId);
+    inRoom == false;
+}
 
 /**
  * 
@@ -31,6 +47,14 @@ function renderInfo(info) {
     main.append(messageSection);
 }
 
+
+const userElementOnClick = (event) => {
+    event.preventDefault();
+    if (myId === event.target.innerText) return;
+    if (inRoom) return;
+    sendPayload("createRoom", event.target.innerText);
+}
+
 /**
  * 
  * @param {string[]} users 
@@ -44,8 +68,8 @@ function renderUsers() {
         const userElement = document.createElement("button");   
         userElement.className = "user list-row";
         userElement.innerText = user;
+        userElement.onclick = userElementOnClick;
         
-
         usersElement.append(userElement);
     }
 }
@@ -72,7 +96,7 @@ function renderMessage(message) {
     
     const chatHeader = document.createElement("p");
     chatHeader.classList = ["chat-header"];
-    chatHeader.innerText = message.authorId == myId ? "me" : message.authorId;
+    chatHeader.innerText = message.authorId;
 
     const messageText = document.createElement("p");
     messageText.classList = ["chat-bubble"];
@@ -89,10 +113,24 @@ function renderMessage(message) {
 }
 /**
  * 
- * @param {string} content 
+ * @param{ { authorId: string, content: string, sentAt: number } } message 
  */
 function sendMessage(message) {
-    socket.send(JSON.stringify(message))
+    sendPayload("message", message);
+}
+/**
+ * 
+ * @param {"message" | "createRoom" | "leaveRoom"} type 
+ * @param { { authorId: string, content: string, sentAt: number } | string | null } value 
+ */
+function sendPayload(type, value) {
+    const payload = {
+        type: type,
+        value: value,
+    };
+    console.info("sent payload:");
+    console.info(payload);
+    socket.send(JSON.stringify(payload));
 }
 
 socket.addEventListener("error", (event) => {
@@ -102,17 +140,12 @@ socket.addEventListener("error", (event) => {
 socket.addEventListener("message", (event) => {
     const data = JSON.parse(event.data);
     const { type, value } = data;
-    console.log(type)
     switch (type) {
         case "uuid": 
             myId = value;
             break;
         case "messages":
-            const messages = Array.isArray(value) ? value : [value] 
-            for (const message of messages) {
-                console.log(message)
-               renderMessage(message);
-            }    
+            renderMessages(value);
             break;
         case "message":
             renderMessage(value);
@@ -135,8 +168,20 @@ socket.addEventListener("message", (event) => {
             renderInfo(`${value} покинул чат`);
             renderUsers();
             break;
+        case "createRoom":
+            userIds = new Set([value]);
+            leaveRoomButton.hidden = false;
+            renderInfo(`создана комната с ${value}`);
+            renderUsers();
+            inRoom = true;
+            break;
+        case "leaveRoom":
+            leaveRoomButton.hidden = true;
+            renderInfo(`комната удалена - ${value} покинул комнату`);
+            inRoom = false;
+            renderUsers();
         default:
-            console.log("unknown data type");
+            console.error("unknown data type");
             break;
     }
  
@@ -147,7 +192,6 @@ socket.addEventListener("close", (event) => {
 })
 
 const messagesForm = document.querySelector("form.messages__form");
-
 
 function handleFormSend(event) {
     event.preventDefault();
@@ -173,10 +217,4 @@ function handleFormSend(event) {
 
 }
 
-messagesForm.addEventListener("submit", handleFormSend)
-// messagesForm.addEventListener("keypress", (event) => {
-//     if (event.keycode === 13) {
-//         event.preventDefault();
-//         handleFormSend(event);
-//     }
-// })
+messagesForm.addEventListener("submit", handleFormSend);

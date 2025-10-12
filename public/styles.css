@@ -18,6 +18,11 @@ body {
     scrollbar-width: none;
 }
 
+.user:hover {
+    filter: brightness(150%) contrast(200%);
+    transition: all 0.5s;
+}
+
 main.messages {
     max-height: calc(96vh - 40px );
     display: flex;
