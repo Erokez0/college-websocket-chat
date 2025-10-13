@@ -83,14 +83,14 @@ export class ChatServer {
 
         this.clients.set(clientId, chatClient);
 
+        const messagesPayload = new Payload("messages", this.messages)
+        this.sendTo(messagesPayload, clientId);
+
         const joinPayload = new Payload("join", clientId);
         this.broadcast(joinPayload);
 
         const newUserIdPayload = new Payload("uuid", clientId)
         this.sendTo(newUserIdPayload, clientId);
-        
-        const messagesPayload = new Payload("messages", this.messages)
-        this.sendTo(messagesPayload, clientId);
 
         const usersPayload = new Payload("users", [...this.clients.keys()])
         this.sendTo(usersPayload, clientId)
@@ -141,6 +141,7 @@ export class ChatServer {
                         return;
                     }
                     if (this.chatRooms.find((chatRoom) => {
+                        console.log(chatRoom);
                         return chatRoom.clients.includes(thisClient);
                     })) {
                         console.error("client is in a room already");
@@ -152,7 +153,7 @@ export class ChatServer {
 
                     const usersPayload = new Payload(
                         "users",
-                        [...this.clients.keys()]
+                        [thisClient.id, otherClient.id]
                     )
                     const roomPayloadThis = new Payload(
                         "createRoom",

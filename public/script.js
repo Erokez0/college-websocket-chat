@@ -169,10 +169,11 @@ socket.addEventListener("message", (event) => {
             renderUsers();
             break;
         case "createRoom":
-            userIds = new Set([value]);
-            leaveRoomButton.hidden = false;
+            userIds.clear();
+
             renderInfo(`создана комната с ${value}`);
             renderUsers();
+            leaveRoomButton.hidden = false;
             inRoom = true;
             break;
         case "leaveRoom":
