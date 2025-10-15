@@ -94,6 +94,11 @@ export class ChatServer {
 
         const usersPayload = new Payload("users", [...this.clients.keys()])
         this.sendTo(usersPayload, clientId)
+
+        if (this.clients.size === 1 && this.messages.length === 0) {
+            const firstPayload = new Payload("first", "Добро пожаловать. Вы первый в чате.")
+            this.sendTo(firstPayload, clientId);
+        }
         
         client.on("message", (data, isBinary) => {
             if (isBinary) {

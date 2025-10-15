@@ -1,6 +1,8 @@
 import { ChatMessage } from "../types";
 
-type PayloadType = "message" | "messages" | "users" | "join" | "leave" | "uuid" | "createRoom" | "leaveRoom";
+type PayloadType = "message" | "messages" | "users" | 
+                    "join" | "leave" | "uuid" | 
+                    "createRoom" | "leaveRoom" | "first";
 
 type PayloadValuesTypes = string | string[] | ChatMessage | ChatMessage[];
 

@@ -141,6 +141,9 @@ socket.addEventListener("message", (event) => {
     const data = JSON.parse(event.data);
     const { type, value } = data;
     switch (type) {
+        case "first":
+            renderInfo(value);
+            break;
         case "uuid": 
             myId = value;
             break;
