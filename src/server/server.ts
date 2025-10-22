@@ -4,6 +4,7 @@ import { generateUniqueName } from "../generator";
 import { Payload } from "../payload";
 import { ChatRoom } from "../chat-room";
 import { ChatClient } from "../chat-client";
+import { DataSource } from "../datasource/datasource";
 
 export class ChatServer {
 
@@ -83,7 +84,8 @@ export class ChatServer {
 
         this.clients.set(clientId, chatClient);
 
-        const messagesPayload = new Payload("messages", this.messages)
+        const messages = await (new DataSource).findMessages();
+        const messagesPayload = new Payload("messages", messages)
         this.sendTo(messagesPayload, clientId);
 
         const joinPayload = new Payload("join", clientId);
