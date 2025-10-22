@@ -5,19 +5,21 @@ import { Payload } from "../payload";
 import { ChatRoom } from "../chat-room";
 import { ChatClient } from "../chat-client";
 import { DataSource } from "../datasource/datasource";
-
+import { MessageModel } from "../datasource/schemas/message.schema";
 export class ChatServer {
 
     private chatRooms: ChatRoom[];
     private clients: Map<string, ChatClient>;
     private messages: ChatMessage[];
     private wss: WebSocketServer;
+    private datasource: DataSource;
 
     constructor(port: number) {
         this.wss = new WebSocketServer({ port })
         this.messages = [];
         this.clients = new Map<string, ChatClient>();
         this.chatRooms = [];
+        this.datasource = new DataSource("mongodb://127.0.0.1:27017/chat");
     }
 
     broadcast = (payload: Payload, exception?: string): void => {
@@ -84,7 +86,7 @@ export class ChatServer {
 
         this.clients.set(clientId, chatClient);
 
-        const messages = await (new DataSource).findMessages();
+        const messages = await this.datasource.findMessages();
         const messagesPayload = new Payload("messages", messages)
         this.sendTo(messagesPayload, clientId);
 
@@ -122,6 +124,8 @@ export class ChatServer {
             switch(payload.type) {
                 case "message":
                     const message = new Payload("message", payload.value);
+                    
+                    new MessageModel(parsedData.value).save();
 
                     const room = this.chatRooms.find((room) => {
                         return room.clients.includes(chatClient);

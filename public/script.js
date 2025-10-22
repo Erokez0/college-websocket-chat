@@ -67,7 +67,7 @@ function renderUsers() {
     for (const user of userIds) {
         const userElement = document.createElement("button");   
         userElement.className = "user list-row";
-        userElement.innerText = user;
+        userElement.innerText = user === myId ? `${user} (you)` : user;
         userElement.onclick = userElementOnClick;
         
         usersElement.append(userElement);

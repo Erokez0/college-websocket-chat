@@ -1,15 +1,24 @@
 import { ChatClient } from "../chat-client";
 import { Payload } from "../payload";
 import { ChatMessage } from "../types";
+import { ChatRoomModel, ChatRoomSchema } from "../datasource/schemas/room.schema";
+import { Types } from "mongoose";
 
 export class ChatRoom {
-    clients: [ChatClient, ChatClient];
+    clients: ChatClient[];
 
-    constructor(...clients: [ChatClient, ChatClient]) {
-        if (clients[0].id === clients[1].id) {
-            throw new Error("client can not create a private chat room with itself");
-        }
+    constructor(...clients: ChatClient[]) {
         this.clients = clients;
+        const id = clients.map( (client) => client.id).sort().join("_");
+        const a = new ChatRoomModel({
+            type: "private",
+            _id: id
+        }, id)
+        a.save().then(() =>
+            ChatRoomModel.findById(id).then( (val) => {
+                console.log(val)
+            })
+        )
     }
 
     sendMessage(message: ChatMessage, sender: ChatClient) {

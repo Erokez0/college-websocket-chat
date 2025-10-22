@@ -10,8 +10,12 @@ const ChatRoomSchema = new Schema({
     },
     users: [{ type: Schema.ObjectId, ref: "ChatUser" }],
     messages: [{ type: Schema.ObjectId, ref: "ChatMessage" }],
+    _id: {
+        type: String,
+        unique: true,
+    },
 })
 
 const ChatRoomModel = model("Room", ChatRoomSchema);
 
-export { ChatRoomModel, ChatRoomSchema}
+export { ChatRoomModel, ChatRoomSchema }

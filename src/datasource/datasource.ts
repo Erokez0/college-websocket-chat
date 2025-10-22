@@ -4,20 +4,24 @@ import { MessageModel } from "./schemas/message.schema";
 
 export class DataSource {
 
-    constructor(url?: string) {
+    constructor(url: string) {
         this.connect(url).then( () => {
             console.log("Connected to mongodb")
         });
     }
 
-    private async connect(url?: string) {
+    private async connect(url: string) {
         await mongoose.connect(url);
-        const newMessage = new MessageModel({
-            authorId: "dev",
-            type: "private",
-            content: "hello there!",
-        })
-        newMessage.save()
+
+        if ((await this.findMessages()).length == 0) {
+            const newMessage = new MessageModel({
+                authorId: "dev",
+                type: "private",
+                content: "hello there!",
+                date: (new Date()).getTime(),
+            });
+            newMessage.save()
+        }
     }
     
     async findMessages(): Promise<ChatMessage[]> {
